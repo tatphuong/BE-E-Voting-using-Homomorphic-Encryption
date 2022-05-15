@@ -1,5 +1,6 @@
 package com.app.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -19,9 +20,11 @@ public class Election {
     private Date startTime;
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date endTime;
-    @OneToMany(mappedBy = "election")
+    @JsonIgnore
+    @OneToMany(mappedBy = "election", fetch = FetchType.LAZY)
     private Set<VoterJoinElection> voterElections;
-    @OneToMany(mappedBy = "election")
+    @JsonIgnore
+    @OneToMany(mappedBy = "election",fetch = FetchType.LAZY)
     private Set<CandidateJoinElection> candidateElection;
     @OneToOne
     @JoinColumn(name = "paillier_id", referencedColumnName = "id")
@@ -29,5 +32,16 @@ public class Election {
 
     public void addElectionDetail(CandidateJoinElection candidateJoinElection){
         this.candidateElection.add(candidateJoinElection);
+    }
+
+    @Override
+    public String toString() {
+        return "Election{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", startTime=" + startTime +
+                ", endTime=" + endTime +
+                ", paillier=" + paillier +
+                '}';
     }
 }

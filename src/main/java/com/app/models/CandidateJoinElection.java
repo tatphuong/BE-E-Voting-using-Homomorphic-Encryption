@@ -1,8 +1,10 @@
 package com.app.models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.Data;
 
 import javax.persistence.*;
+import java.math.BigInteger;
 
 @Entity
 @Data
@@ -17,5 +19,5 @@ public class CandidateJoinElection {
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "election_id")
     private Election election;
-    private Long numberOfVotes;
+    private BigInteger numberOfVotes;
 }

@@ -1,13 +1,16 @@
 package com.app.models;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
+import lombok.Data;
+import org.hibernate.annotations.ColumnDefault;
+
+import javax.persistence.*;
+import java.math.BigInteger;
 
 @Entity
+@Data
 public class VoterJoinElection {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @ManyToOne
     @JoinColumn(name = "user_id")
@@ -15,5 +18,7 @@ public class VoterJoinElection {
     @ManyToOne
     @JoinColumn(name = "election_id")
     private Election election;
-    private Long ballot;
+    private BigInteger ballot;
+    @ColumnDefault("'1'")
+    private int times;
 }

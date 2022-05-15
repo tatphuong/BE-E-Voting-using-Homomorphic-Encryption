@@ -1,5 +1,7 @@
 package com.app.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -22,10 +24,26 @@ public class Candidate {
     private String address;
     private String education;
     private String nationality;
+    @JsonIgnore
     @OneToMany(mappedBy = "candidate")
     Set<CandidateJoinElection> candidateElection;
     public void addElectionDetail(CandidateJoinElection candidateJoinElection){
         this.candidateElection.add(candidateJoinElection);
     }
 
+    @Override
+    public String toString() {
+        return "Candidate{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", citizenIdentity=" + citizenIdentity +
+                ", avatar='" + avatar + '\'' +
+                ", dateOfBirth=" + dateOfBirth +
+                ", gender='" + gender + '\'' +
+                ", occupation='" + occupation + '\'' +
+                ", address='" + address + '\'' +
+                ", education='" + education + '\'' +
+                ", nationality='" + nationality + '\'' +
+                '}';
+    }
 }
