@@ -1,6 +1,8 @@
 package com.app.controller;
 
 import com.app.models.*;
+import com.app.payload.request.ElectionRequest;
+import com.app.payload.request.UpdateUserRequest;
 import com.app.payload.request.VotingRequest;
 import com.app.payload.response.MessageResponse;
 import com.app.payload.response.TotalVotesResponse;
@@ -19,6 +21,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigInteger;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -97,12 +100,19 @@ public class ElectionController {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @PatchMapping("/{id}/addAll")
-    public ResponseEntity<?> addAllUser(@PathVariable Long id) {
-        Optional<Election> electionOptional = electionService.findById(id);
-        Election election = modelMapper.map(electionOptional.get(), Election.class);
-        Iterable<User> users = userService.findAll();
-        return new ResponseEntity<>(electionService.save(election), HttpStatus.OK);
+    @PatchMapping ("/{id}")
+    public ResponseEntity<ElectionDTO> updateElection(@PathVariable Long id, @RequestBody ElectionRequest electionRequest) {
+        Optional<Election> optionalElection = electionService.findById(id);
+        if (!optionalElection.isPresent()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        Election election=optionalElection.get();
+        election.setName(electionRequest.getName());
+        election.setEndTime(electionRequest.getEndTime());
+        election.setStartTime(electionRequest.getStartTime());
+        electionService.save(election);
+        ElectionDTO electionDTO = modelMapper.map(election,ElectionDTO.class);
+        return new ResponseEntity<>(electionDTO, HttpStatus.OK);
     }
 
     /**
@@ -122,6 +132,11 @@ public class ElectionController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         Election election = electionOptional.get();
+        Date presentDate=new Date();
+        if(election.getEndTime().before(presentDate)){
+            System.out.println(election.getEndTime());
+            return new ResponseEntity<>(new MessageResponse("Da het han bau cu"),HttpStatus.BAD_REQUEST);
+        }
         User user = userService.findById(votingRequest.getUserId()).get();
         Paillier paillier = election.getPaillier();
         BigInteger ballot = paillier.encrypt(new BigInteger(Long.toString(votingRequest.getCandidateId())));
@@ -135,7 +150,7 @@ public class ElectionController {
         BigInteger totalVoteCand = cje.getNumberOfVotes().multiply(ballot).mod(paillier.getNsquare());
         cje.setNumberOfVotes(totalVoteCand);
         cElectionService.save(cje);
-        return new ResponseEntity<>(new VotingResponse(ballot), HttpStatus.OK);
+        return new ResponseEntity<>(ballot, HttpStatus.OK);
     }
 
     /**
@@ -162,5 +177,19 @@ public class ElectionController {
             votesResponse.setNumberOfVotes(paillier.decrypt(votesResponse.getNumberOfVotes()).divide(candidateId));
         }
         return new ResponseEntity<>(totalVotesResponseList, HttpStatus.OK);
+    }
+    @GetMapping("/{id}/checkVoted/{userId}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
+    public Boolean checkVoted(@PathVariable(name = "id") Long id,@PathVariable Long userId) throws Exception {
+
+        Boolean isVoted=vElectionService.existsByVoting(id, userId);
+        return isVoted;
+    }
+    @GetMapping("/{id}/getBallot/{userId}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
+    public BigInteger getBallot(@PathVariable(name = "id") Long id,@PathVariable Long userId) throws Exception {
+
+        BigInteger ballot=vElectionService.findBallot(id,userId);
+        return ballot;
     }
 }

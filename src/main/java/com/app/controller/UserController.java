@@ -106,6 +106,8 @@ public class UserController {
         user.setAvatar(userRequest.getAvatar());
         user.setDateOfBirth(userRequest.getDateOfBirth());
         user.setGender(userRequest.getGender());
+        user.setCitizenIdentity(Integer.parseInt(userRequest.getCitizenIdentity()));
+        user.setAddress(userRequest.getAddress());
         userService.save(user);
        UserDTO userDTO = modelMapper.map(user,UserDTO.class);
         return new ResponseEntity<>(userDTO, HttpStatus.OK);

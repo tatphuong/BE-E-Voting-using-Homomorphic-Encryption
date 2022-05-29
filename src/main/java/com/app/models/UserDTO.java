@@ -17,22 +17,9 @@ public class UserDTO {
     private Date dateOfBirth;
     private String gender;
     private String avatar;
-    @JsonFormat(pattern="dd-MM-yyy")
-    private Date dayIn;
-    private String about;
+    private String address;
     private String citizenIdentity;
     private int status;
     private Set<Role> roles ;
 
-    public UserDTO(User user) {
-        this.id = user.getId();
-        this.name = user.getName();
-        this.username = user.getUsername();
-        this.email = user.getEmail();
-        this.dateOfBirth = user.getDateOfBirth();
-        this.gender = user.getGender();
-        this.avatar = user.getAvatar();
-        this.status = user.getStatus();
-        this.roles = user.getRoles();
-    }
 }

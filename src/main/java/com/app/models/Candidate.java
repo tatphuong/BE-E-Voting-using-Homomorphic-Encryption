@@ -1,5 +1,6 @@
 package com.app.models;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Data;
@@ -18,6 +19,7 @@ public class Candidate {
     private String name;
     private int citizenIdentity;
     private String avatar;
+    @JsonFormat(pattern="dd-MM-yyyy")
     private Date dateOfBirth;
     private String gender;
     private String occupation;

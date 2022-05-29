@@ -19,12 +19,11 @@ public class UpdateUserRequest {
     @Size(max = 50)
     @Email
     private String email;
-    @JsonFormat(pattern="dd-MM-yyyy")
+    @JsonFormat(pattern="yyyy-MM-dd")
     private Date dateOfBirth;
     @ColumnDefault("Male")
     private String gender;
     private String avatar;
-    @JsonFormat(pattern="dd-MM-yyyy")
-    private Date dayIn;
-    private String about;
+    private String address;
+    private String citizenIdentity;
 }

@@ -16,5 +16,4 @@ public class ElectionDTO {
     private Date startTime;
     @JsonFormat(pattern="dd-MM-yyyy")
     private Date endTime;
-    private Set<CandidateJoinElection> candidateElection;
 }
