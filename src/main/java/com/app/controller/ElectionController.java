@@ -2,11 +2,10 @@ package com.app.controller;
 
 import com.app.models.*;
 import com.app.payload.request.ElectionRequest;
-import com.app.payload.request.UpdateUserRequest;
 import com.app.payload.request.VotingRequest;
 import com.app.payload.response.MessageResponse;
+import com.app.payload.response.NoVotesResponse;
 import com.app.payload.response.TotalVotesResponse;
-import com.app.payload.response.VotingResponse;
 import com.app.service.UserService;
 import com.app.service.candidate.CandidateService;
 import com.app.service.election.CElectionService;
@@ -162,6 +161,31 @@ public class ElectionController {
     @GetMapping("/{id}/totalVotes")
     @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     public ResponseEntity<?> totalVote(@PathVariable Long id) throws Exception {
+        Optional<Election> electionOptional = electionService.findById(id);
+        if (!electionOptional.isPresent()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        Election election = electionOptional.get();
+        List<CandidateJoinElection> cjeList = (List<CandidateJoinElection>) cElectionService.findByElection(election);
+        Paillier paillier = election.getPaillier();
+        //mapper to totalVote response
+        List<TotalVotesResponse> totalVotesResponseList = cjeList.stream().map(u -> modelMapper.map(u, TotalVotesResponse.class)).collect(Collectors.toList());
+        Date presentDate=new Date();
+        if(election.getEndTime().after(presentDate)){
+            System.out.println(election.getEndTime());
+            List<NoVotesResponse> noVotesResponses= totalVotesResponseList.stream().map(t -> modelMapper.map(t,NoVotesResponse.class)).collect(Collectors.toList());
+            return new ResponseEntity<>(noVotesResponses, HttpStatus.OK);
+        }
+        for (TotalVotesResponse votesResponse : totalVotesResponseList) {
+            BigInteger candidateId = BigInteger.valueOf(votesResponse.getCandidate().getId());
+            //decrypt totalVote of candidate then divide id candidate
+            votesResponse.setNumberOfVotes(paillier.decrypt(votesResponse.getNumberOfVotes()).divide(candidateId));
+        }
+        return new ResponseEntity<>(totalVotesResponseList, HttpStatus.OK);
+    }
+    @GetMapping("/{id}/totalVotesAD")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> totalVoteForAD(@PathVariable Long id) throws Exception {
         Optional<Election> electionOptional = electionService.findById(id);
         if (!electionOptional.isPresent()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
