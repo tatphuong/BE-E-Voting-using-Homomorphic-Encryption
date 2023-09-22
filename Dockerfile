@@ -11,6 +11,9 @@ COPY build.gradle settings.gradle $APP_HOME
 # Sao chép tệp Gradle wrapper vào thư mục làm việc
 COPY gradlew $APP_HOME
 
+# Cấp quyền thực thi cho tệp Gradlew
+RUN chmod +x $APP_HOME/gradlew
+
 # Sao chép toàn bộ thư mục src vào thư mục làm việc
 COPY src /usr/app/src
 
