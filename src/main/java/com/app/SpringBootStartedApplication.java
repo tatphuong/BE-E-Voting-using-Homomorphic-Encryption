@@ -20,10 +20,12 @@ public class SpringBootStartedApplication {
     }
     @Bean
     public WebMvcConfigurer corsConfigurer() {
-        return new WebMvcConfigurerAdapter() {
+        return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/**").allowedOrigins("*").allowedMethods("HEAD", "GET", "PUT", "POST", "DELETE", "PATCH");
+                registry.addMapping("/**")
+                        .allowedOrigins("*")
+                        .allowedMethods("HEAD", "GET", "PUT", "POST", "DELETE", "PATCH");
             }
         };
     }
