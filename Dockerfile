@@ -1,5 +1,5 @@
-# Sử dụng hình ảnh cơ sở với JDK
-FROM openjdk:11-jre-slim
+# Sử dụng hình ảnh cơ sở với JDK để xây dựng ứng dụng
+FROM openjdk:11-jre-slim AS builder
 ENV APP_HOME=/usr/app/
 # Tạo thư mục làm việc
 WORKDIR $APP_HOME
@@ -16,10 +16,14 @@ COPY src /usr/app/src
 
 # Chạy lệnh Gradle để xây dựng ứng dụng
 RUN ./gradlew clean build
+
+# Bắt đầu giai đoạn mới và đặt tên hình ảnh thành lowercase
+FROM openjdk:11-jre-slim
 ENV ARTIFACT_NAME=spring-boot-started-0.0.1-SNAPSHOT.jar
 ENV APP_HOME=/usr/app/
-
 WORKDIR $APP_HOME
-COPY --from=Builder $APP_HOME/build/libs/$ARTIFACT_NAME .
 
-ENTRYPOINT exec java -jar ${ARTIFACT_NAME}
+# Sao chép file JAR từ giai đoạn trước (builder stage) vào giai đoạn hiện tại
+COPY --from=builder $APP_HOME/build/libs/$ARTIFACT_NAME .
+
+ENTRYPOINT exec java -jar $ARTIFACT_NAME
